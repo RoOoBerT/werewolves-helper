@@ -1,6 +1,6 @@
 package com.rooobert.werewolves.gui;
 
-import jdk.javadoc.internal.doclets.formats.html.markup.HtmlAttr.Role;
+import com.rooobert.werewolves.Role;
 
 public class Launcher {
 	public static void main(String args[]) throws Exception {
