@@ -4,8 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.imageio.ImageIO;
-
 public enum Team {
 	// --- Values
 	VILLAGERS("🧑‍🌾", "Villageois"),
@@ -22,7 +20,7 @@ public enum Team {
 	private Team(String emoji, String nameFr) {
 		this.emoji = emoji;
 		this.nameFr = nameFr;
-
+		
 		final String resourcePath = String.format("/images/teams/%s.png", this.name());
 		try (InputStream resourceAsStream = Role.class.getResourceAsStream(resourcePath)) {
 			if (resourceAsStream == null) {

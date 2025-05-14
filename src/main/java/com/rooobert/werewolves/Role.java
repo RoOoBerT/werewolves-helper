@@ -46,7 +46,6 @@ public enum Role {
 	;
 	
 	// --- Constants
-	public static Role[] ROLE_RESOLUTION_ORDER = {};
 	
 	// --- Attributes
 	private final String emoji;
