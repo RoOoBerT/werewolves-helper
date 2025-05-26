@@ -8,8 +8,7 @@ public enum Team {
 	// --- Values
 	VILLAGERS("🧑‍🌾", "Villageois"),
 	WEREWOLVES("🐺", "Loup-Garou"),
-	OWN("🪞", "Personnel"),
-	CONTEXTUAL("❓", "Contextuel")
+	OWN("🪞", "Personnel")
 	;
 	
 	// --- Attributes
