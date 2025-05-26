@@ -1,6 +1,5 @@
 package com.rooobert.werewolves;
 
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,9 +9,9 @@ import java.io.InputStream;
 import javax.imageio.ImageIO;
 
 // https://boardgamegeek.com/image/181307/werewolves-millers-hollow
-public enum Role {
+public enum StandardRole {
 	// --- Values
-	ANGEL("👼", "Ange", 1, Behaviour.PASSIVE, Team.VILLAGERS, Team.OWN,
+	ANGEL("👼", "Ange", 1, Behaviour.PASSIVE, Team.VILLAGERS, Team.CONTEXTUAL,
 			"Si l'ange est éliminé le premier jour suite au vote du village, il remporte la partie.\n"
 			+ "(Ne fonctionne pas avec tout autre type de décès tel que morsure des loups-garous, potion de la sorcière etc.)\n"
 			+ "A partir du second jour, s'il est toujours en vie, il devient un villageois."
@@ -21,27 +20,72 @@ public enum Role {
 			"Lors de la première nuit, cupidon peut rendre deux personnes amoureuses.\n"
 			+ "Indépendament de leurs rôles, les amoureux(ses) sont liés à la vie à la mort et doivent terminer la partie à deux."
 		),
-	FORTUNE_TELLER("🔮", "Voyante", 1, Behaviour.CALLED_EACH_NIGHT, Team.VILLAGERS,
-			"Chaque nuit, la voyante peut découvrir le rôle d'un des joueurs."
+	DEFENDER("🛡️", "Salvateur", 1, Behaviour.CALLED_EACH_NIGHT, Team.VILLAGERS,
+			""
 		),
-	HUNTER("🔪", "Chasseur", 1, Behaviour.PASSIVE, Team.VILLAGERS,
+	DEVOTED_SERVANT("🧹", "Servante dévouée", 1, Behaviour.PASSIVE, Team.CONTEXTUAL,
+			""
+		),
+	HUNTER("🔫", "Chasseur", 1, Behaviour.PASSIVE, Team.VILLAGERS,
 			"En mourant, le chassseur tue une personne de son choix."
 		),
 	LITTLE_GIRL("👧", "Petite fille", 1, Behaviour.PASSIVE, Team.VILLAGERS,
 			"Durant la nuit, la petite fille peut entendre les loups-garous."
+			),
+	PREJUDICED_MANIPULATOR("🏴‍☠️", "Abominable Sectaire", 1, Behaviour.PASSIVE, Team.OWN,
+			""
 		),
-	VILLAGER("🧑‍🌾", "Villageois", 0, Behaviour.PASSIVE, Team.VILLAGERS,
-			"En fin de journée, les villageois font un vote pour choisir quelle personne sera pendue."
-		),
-	WEREWOLF("🐺", "Loup-garou", 0, Behaviour.CALLED_EACH_NIGHT, Team.WEREWOLVES,
-			"Durant la nuit, les loups-garous se concertent pour dévorer un des villageois."
+	RAVEN("🐦‍⬛", "Corbeau", 1, Behaviour.CALLED_EACH_NIGHT, Team.VILLAGERS,
+			""
 		),
 	SCAPEGOAT("👉", "Bouc émissaire", 1, Behaviour.PASSIVE, Team.VILLAGERS,
 			"En cas d'égalité lors du vote du village, c'est le bouc émissaire qui est tué."
+			),
+	SEER("🔮", "Voyante", 1, Behaviour.CALLED_EACH_NIGHT, Team.VILLAGERS,
+			"Chaque nuit, la voyante peut découvrir le rôle d'un des joueurs."
+			),
+	SHERIFF("⭐", "Shérif", 1, Behaviour.PASSIVE, Team.CONTEXTUAL,
+			""
+			),
+	THIEF("", "Voleur", 1, Behaviour.PASSIVE, Team.CONTEXTUAL,
+			""
+			),
+	THREE_BROTHERS("⭐", "3 frères", 3, Behaviour.PASSIVE, Team.VILLAGERS,
+			""
+			),
+	TRUSTED_VILLAGER("", "Villageois de confiance", 3, Behaviour.PASSIVE, Team.VILLAGERS,
+			""
+			),
+	TWO_SISTERS("", "2 soeurs", 2, Behaviour.PASSIVE, Team.VILLAGERS,
+			""
+			),
+	VILLAGE_ELDER("", "Ancient du village", 1, Behaviour.PASSIVE, Team.VILLAGERS,
+			""
+			),
+	VILLAGE_IDIOT("", "Idiot du village", 1, Behaviour.PASSIVE, Team.VILLAGERS,
+			""
+			),
+	VILLAGER("🧑‍🌾", "Villageois", 0, Behaviour.PASSIVE, Team.VILLAGERS,
+			"En fin de journée, les villageois font un vote pour choisir quelle personne sera pendue."
 		),
-	SORCERESS("🧙‍♀️", "Sorcière", 1, Behaviour.CALLED_EACH_NIGHT, Team.VILLAGERS,
+	WANDERING_JUDGE("", "Juge", 1, Behaviour.PASSIVE, Team.VILLAGERS,
+			""
+			),
+	WEREWOLF("🐺", "Loup-garou", 0, Behaviour.CALLED_EACH_NIGHT, Team.WEREWOLVES,
+			"Durant la nuit, les loups-garous se concertent pour dévorer un des villageois."
+		),
+	WHITE_WEREWOLF("🐺", "Loup blanc", 1, Behaviour.CALLED_EACH_NIGHT, Team.OWN,
+			""
+		),
+	WILD_CHILD("🐺", "Enfant sauvage", 1, Behaviour.CALLED_ONCE, Team.CONTEXTUAL,
+			""
+		),
+	WITCH("🧙‍♀️", "Sorcière", 1, Behaviour.CALLED_EACH_NIGHT, Team.VILLAGERS,
 			"Pour toute la partie, la sorcière possède une potion de vie permettant de ressuciter un joueur,"
 			+ " et une potion de mort permettant de tuer un joueur."
+		),
+	WOLF_HOUND("🐺", "Chien-loup", 1, Behaviour.CALLED_ONCE, Team.CONTEXTUAL,
+			""
 		),
 	;
 	
@@ -57,15 +101,15 @@ public enum Role {
 	private final Team[] teams;
 	
 	// --- Methods
-	private Role(String emoji, String name, int max, Behaviour behaviour, Team team, String description) {
+	private StandardRole(String emoji, String name, int max, Behaviour behaviour, Team team, String description) {
 		this(emoji, name, max, behaviour, new Team[] {team}, description);
 	}
 	
-	private Role(String emoji, String name, int max, Behaviour behaviour, Team team1, Team team2, String description) {
+	private StandardRole(String emoji, String name, int max, Behaviour behaviour, Team team1, Team team2, String description) {
 		this(emoji, name, max, behaviour, new Team[] {team1, team2}, description);
 	}
 	
-	private Role(String emoji, String name, int max, Behaviour behaviour, Team[] teams, String description) {
+	private StandardRole(String emoji, String name, int max, Behaviour behaviour, Team[] teams, String description) {
 		this.emoji = emoji;
 		this.name = name;
 		this.max = max;
@@ -75,7 +119,7 @@ public enum Role {
 		
 		// Load images
 		final String resourcePath = String.format("/images/roles/%s.png", this.name());
-		try (InputStream resourceAsStream = Role.class.getResourceAsStream(resourcePath)) {
+		try (InputStream resourceAsStream = StandardRole.class.getResourceAsStream(resourcePath)) {
 			if (resourceAsStream == null) {
 				throw new RuntimeException(String.format("Resource image for %s not found : %s", this.name, resourcePath));
 			}
@@ -97,7 +141,7 @@ public enum Role {
 		return this.max;
 	}
 	
-	public Image getImage() {
+	public BufferedImage getImage() {
 		return this.image;
 	}
 	

@@ -8,7 +8,8 @@ public enum Team {
 	// --- Values
 	VILLAGERS("🧑‍🌾", "Villageois"),
 	WEREWOLVES("🐺", "Loup-Garou"),
-	OWN("🪞", "Personnel")
+	OWN("🪞", "Personnel"),
+	CONTEXTUAL("❓", "Contextuel")
 	;
 	
 	// --- Attributes
@@ -22,7 +23,7 @@ public enum Team {
 		this.nameFr = nameFr;
 		
 		final String resourcePath = String.format("/images/teams/%s.png", this.name());
-		try (InputStream resourceAsStream = Role.class.getResourceAsStream(resourcePath)) {
+		try (InputStream resourceAsStream = StandardRole.class.getResourceAsStream(resourcePath)) {
 			if (resourceAsStream == null) {
 				//throw new RuntimeException(String.format("Resource image for %s not found : %s", this.name(), resourcePath));
 			}

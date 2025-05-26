@@ -10,14 +10,22 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import com.rooobert.image.ImageUtils;
+import com.rooobert.werewolves.StandardRole;
 
 public class WerewolfPanel extends JPanel {
 	// --- Constants
 	
 	// --- Attributes
+	private final Set<StandardRole> activeRoles = new HashSet<>(StandardRole.values().length);
+	
 	
 	// --- Methods
 	public static void main(String args[]) {
@@ -82,10 +90,26 @@ public class WerewolfPanel extends JPanel {
 	@Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        
+        // Dimensions
+        final int width = this.getWidth();
+        final int height = this.getHeight();
+        
+        // Clear background
         Graphics2D g2d = (Graphics2D) g;
         g2d.setBackground(Color.RED);
-        g2d.clearRect(0, 0, this.getWidth(), this.getHeight());
+        g2d.clearRect(0, 0, width, height);
         
+        // Analyze the list of roles
+        final StandardRole[] roles = StandardRole.values();
+        final int roleSize = height / (1 + roles.length);
+        
+        for (int i = 0; i != roles.length; i++) {
+        	final StandardRole role = roles[i];
+        	final BufferedImage originalImage = role.getImage();
+        	final BufferedImage resizedImage = ImageUtils.resizeImage(originalImage, roleSize, roleSize);
+        	
+        	g2d.drawImage(resizedImage, width / 2 - resizedImage.getWidth() / 2, roleSize / 2 + i * roleSize, null);
+        }
     }
 }
