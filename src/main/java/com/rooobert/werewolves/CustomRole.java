@@ -1,6 +1,7 @@
 package com.rooobert.werewolves;
 
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 import java.util.Set;
 
 public class CustomRole implements Role {
@@ -51,5 +52,32 @@ public class CustomRole implements Role {
 	@Override
 	public String getDescription() {
 		return this.description;
+	}
+
+	@Override
+	public String getBehaviour() {
+		return this.behaviour;
+	}
+
+	@Override
+	public Set<String> getTeams() {
+		return this.teams;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.name);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CustomRole other = (CustomRole) obj;
+		return Objects.equals(this.name, other.name);
 	}
 }

@@ -1,98 +1,112 @@
 package com.rooobert.werewolves.gui;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Toolkit;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.rooobert.audio.Sound;
 import com.rooobert.image.ImageUtils;
-import com.rooobert.werewolves.StandardRole;
+import com.rooobert.math.geometry.Rectangle2DInt;
+import com.rooobert.werewolves.Role;
 
 public class WerewolfPanel extends JPanel {
 	// --- Constants
 	public static final Clip SOUND_POP = Sound.loadSound(Paths.get("Pop.wav"));
 	
 	// --- Attributes
-	private final Set<StandardRole> activeRoles = new HashSet<>(StandardRole.values().length);
+	private final List<Role> roles;
+	private final Set<String> teams;
+	private final Set<Role> activeRoles = new HashSet<>();
+	private final Map<Role, Rectangle2DInt> areaByRole = new HashMap<>();
 	
+	private final transient int maxRolesPerTeam;
 	
 	// --- Methods
-	public static void main(String args[]) {
-		JFrame frame = new JFrame();
-		frame.setTitle("Werewolves Helper by RoOoBerT");
+	public WerewolfPanel(List<Role> roles) {
+		this.roles = Collections.unmodifiableList(roles);
+		this.activeRoles.addAll(roles);
 		
-		frame.addWindowListener(new WindowAdapter() {
-        	@Override
-        	public void windowClosing(WindowEvent e) {
-        		System.exit(0);
-        	}
-        });
-        
-        // Create paintable panel
-        frame.add(new WerewolfPanel());
-        
-        // Set size
-        final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        final int width = (int) screenSize.getWidth();
-        final int height = (int) screenSize.getHeight();
-        
-        frame.setSize(width * 3 / 4, height * 3 / 4);
-        frame.setLocation((width - frame.getWidth()) / 2, (height - frame.getHeight()) / 2);
-		frame.setVisible(true);
-	}
-	
-	public WerewolfPanel() {
+		// Save teams
+		Map<String, Integer> rolesByTeam = new HashMap<>();
+		Set<String> teams = new HashSet<>();
+		for (Role role : roles) {
+			for (String team : role.getTeams()) {
+				teams.add(team);
+				
+				int count = rolesByTeam.getOrDefault(team, 0);
+				rolesByTeam.put(team, count + 1);
+			}
+		}
+		this.teams = Collections.unmodifiableSet(teams);
+		this.maxRolesPerTeam = rolesByTeam.values().stream().max(Integer::compareTo).get();
+		
 		// Register events
         this.addMouseListener(new MouseAdapter() {
 
 			@Override
 			public void mousePressed(MouseEvent event) {
-				WerewolfPanel.mousePressed(event);
+				WerewolfPanel.this.mousePressed(event);
 			}
 			
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent event) {
-				WerewolfPanel.mouseWheelMoved(event);
+				WerewolfPanel.this.mouseWheelMoved(event);
 			}
 			
 			@Override
 			public void mouseMoved(MouseEvent event) {
-				WerewolfPanel.mouseMoved(event);
+				WerewolfPanel.this.mouseMoved(event);
 			}
 		});
+        
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent event) {
+            	WerewolfPanel.this.componentResized(event);
+            }
+        });
 	}
 	
-	protected static void mousePressed(MouseEvent event) {
-		Sound.play(SOUND_POP);
-	}
-
-	protected static void mouseWheelMoved(MouseWheelEvent event) {
-		// TODO Auto-generated method stub
+	protected void componentResized(ComponentEvent event) {
+		this.recomputePositions(this.getWidth(), this.getHeight());
 	}
 	
-	protected static void mouseMoved(MouseEvent event) {
-		// TODO Auto-generated method stub
-		
+	protected void mousePressed(MouseEvent event) {
+		Role role = this.getRoleAt(event.getX(), event.getY());
+		if (role != null) {
+			if (!this.activeRoles.contains(role)) {
+				this.activeRoles.add(role);
+				Sound.play(SOUND_POP);
+			} else {
+				this.activeRoles.remove(role);
+				Sound.play(SOUND_POP);
+			}
+		}
+	}
+	
+	protected void mouseWheelMoved(MouseWheelEvent event) {
+		// 
+	}
+	
+	protected void mouseMoved(MouseEvent event) {
+		// 
 	}
 	
 	@Override
@@ -109,15 +123,51 @@ public class WerewolfPanel extends JPanel {
         g2d.clearRect(0, 0, width, height);
         
         // Analyze the list of roles
-        final StandardRole[] roles = StandardRole.values();
-        final int roleSize = height / (1 + roles.length);
-        
-        for (int i = 0; i != roles.length; i++) {
-        	final StandardRole role = roles[i];
-        	final BufferedImage originalImage = role.getImage();
-        	final BufferedImage resizedImage = ImageUtils.resizeImage(originalImage, roleSize, roleSize);
+        for (Entry<Role, Rectangle2DInt> entry : this.areaByRole.entrySet()) {
+        	final Role role = entry.getKey();
+        	final Rectangle2DInt area = entry.getValue();
         	
-        	g2d.drawImage(resizedImage, width / 2 - resizedImage.getWidth() / 2, roleSize / 2 + i * roleSize, null);
-        }
+        	final BufferedImage originalImage = role.getImage();
+        	final int cardSize = Math.min(area.getWidth(), area.getHeight());
+        	final BufferedImage resizedImage = ImageUtils.resizeImage(originalImage, cardSize, cardSize);
+        	
+        	g2d.drawImage(resizedImage, area.getX(), area.getY(), null);
+		}
     }
+	
+	private void recomputePositions(int width, int height) {
+		final int columns = this.teams.size();
+		final int columnWidth = width / columns;
+		
+		final int lines = this.maxRolesPerTeam;
+		final int rowHeight = height / lines;
+		
+		final int cardSize = Math.min(columnWidth, rowHeight);
+		
+		final int xOffset = columnWidth / 2 - cardSize / 2;
+		final int yOffset = rowHeight / 2 - cardSize / 2;
+		
+		int x = 0;
+		for (String team : this.teams) {
+			int y = 0;
+			for (Role role : this.activeRoles) {
+				if (role.getTeams().contains(team) && role.getTeams().size() == 1) {
+					this.areaByRole.put(role, new Rectangle2DInt(x, y, cardSize, cardSize));
+					y += rowHeight;
+				}
+			}
+			
+			x += columnWidth;
+		}
+	}
+	
+	private Role getRoleAt(int x, int y) {
+		for (Entry<Role, Rectangle2DInt> entry : this.areaByRole.entrySet()) {
+			Rectangle2DInt area = entry.getValue();
+			if (area.contains(x, y)) {
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
 }

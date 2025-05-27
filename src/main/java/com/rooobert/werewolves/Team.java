@@ -13,13 +13,13 @@ public enum Team {
 	
 	// --- Attributes
 	private final String emoji;
-	private final String nameFr;
+	private final String name;
 	private final BufferedImage image;
 	
 	// --- Methods
 	private Team(String emoji, String nameFr) {
 		this.emoji = emoji;
-		this.nameFr = nameFr;
+		this.name = nameFr;
 		
 		final String resourcePath = String.format("/images/teams/%s.png", this.name());
 		try (InputStream resourceAsStream = StandardRole.class.getResourceAsStream(resourcePath)) {
@@ -30,5 +30,9 @@ public enum Team {
 		} catch (IOException e) {
 			throw new RuntimeException("Failure loading werewolf card image : " + e.getMessage(), e);
 		}
+	}
+	
+	public String getName() {
+		return this.name;
 	}
 }

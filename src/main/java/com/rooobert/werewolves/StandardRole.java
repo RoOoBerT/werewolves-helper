@@ -5,6 +5,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
@@ -169,5 +172,15 @@ public enum StandardRole implements Role {
 	@Override
 	public String getDescription() {
 		return this.description;
+	}
+
+	@Override
+	public String getBehaviour() {
+		return this.behaviour.name();
+	}
+	
+	@Override
+	public Collection<String> getTeams() {
+		return Arrays.asList(this.teams).stream().map(Team::getName).collect(Collectors.toSet());
 	}
 }
