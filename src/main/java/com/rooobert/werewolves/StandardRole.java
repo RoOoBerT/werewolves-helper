@@ -9,7 +9,7 @@ import java.io.InputStream;
 import javax.imageio.ImageIO;
 
 // https://boardgamegeek.com/image/181307/werewolves-millers-hollow
-public enum StandardRole {
+public enum StandardRole implements Role {
 	// --- Values
 	ANGEL("👼", "Ange", 0, 1, Behaviour.PASSIVE, Team.OWN, Team.VILLAGERS,
 			"Si l'ange est éliminé le premier jour suite au vote du village, il remporte la partie.\n"
@@ -68,7 +68,7 @@ public enum StandardRole {
 	VILLAGER("🧑‍🌾", "Villageois", 0, 0, Behaviour.PASSIVE, Team.VILLAGERS,
 			"En fin de journée, les villageois font un vote pour choisir quelle personne sera pendue."
 		),
-	WANDERING_JUDGE("", "Juge", 0, 1, Behaviour.PASSIVE, Team.VILLAGERS,
+	WANDERING_JUDGE("⚖️", "Juge", 0, 1, Behaviour.PASSIVE, Team.VILLAGERS,
 			""
 			),
 	WEREWOLF("🐺", "Loup-garou", 1, 0, Behaviour.CALLED_EACH_NIGHT, Team.WEREWOLVES,
@@ -84,7 +84,7 @@ public enum StandardRole {
 			"Pour toute la partie, la sorcière possède une potion de vie permettant de ressuciter un joueur,"
 			+ " et une potion de mort permettant de tuer un joueur."
 		),
-	WOLF_HOUND("🐺", "Chien-loup", 0, 1, Behaviour.CALLED_ONCE, Team.VILLAGERS, Team.WEREWOLVES,
+	WOLF_HOUND("🐶", "Chien-loup", 0, 1, Behaviour.CALLED_ONCE, Team.VILLAGERS, Team.WEREWOLVES,
 			""
 		),
 	;
@@ -135,14 +135,22 @@ public enum StandardRole {
 		return this.emoji;
 	}
 	
+	@Override
 	public String getName() {
 		return this.name;
 	}
 	
+	@Override
+	public int getMinCount() {
+		return this.min;
+	}
+	
+	@Override
 	public int getMaxCount() {
 		return this.max;
 	}
 	
+	@Override
 	public BufferedImage getImage() {
 		return this.image;
 	}
@@ -157,7 +165,8 @@ public enum StandardRole {
 		InputStream is = new ByteArrayInputStream(os.toByteArray());
 		return is;
 	}
-
+	
+	@Override
 	public String getDescription() {
 		return this.description;
 	}

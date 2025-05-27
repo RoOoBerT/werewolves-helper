@@ -11,17 +11,26 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import com.rooobert.audio.Sound;
 import com.rooobert.image.ImageUtils;
 import com.rooobert.werewolves.StandardRole;
 
 public class WerewolfPanel extends JPanel {
 	// --- Constants
+	public static final Clip SOUND_POP = Sound.loadSound(Paths.get("Pop.wav"));
 	
 	// --- Attributes
 	private final Set<StandardRole> activeRoles = new HashSet<>(StandardRole.values().length);
@@ -54,35 +63,34 @@ public class WerewolfPanel extends JPanel {
 	
 	public WerewolfPanel() {
 		// Register events
-        this.addMouseMotionListener(new MouseAdapter() {
+        this.addMouseListener(new MouseAdapter() {
 
 			@Override
-			public void mousePressed(MouseEvent e) {
-				WerewolfPanel.mousePressed(e);
+			public void mousePressed(MouseEvent event) {
+				WerewolfPanel.mousePressed(event);
 			}
 			
 			@Override
-			public void mouseWheelMoved(MouseWheelEvent e) {
-				WerewolfPanel.mouseWheelMoved(e);
+			public void mouseWheelMoved(MouseWheelEvent event) {
+				WerewolfPanel.mouseWheelMoved(event);
 			}
 			
 			@Override
-			public void mouseMoved(MouseEvent e) {
-				WerewolfPanel.mouseMoved(e);
+			public void mouseMoved(MouseEvent event) {
+				WerewolfPanel.mouseMoved(event);
 			}
 		});
 	}
 	
-	protected static void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+	protected static void mousePressed(MouseEvent event) {
+		Sound.play(SOUND_POP);
 	}
 
-	protected static void mouseWheelMoved(MouseWheelEvent e) {
+	protected static void mouseWheelMoved(MouseWheelEvent event) {
 		// TODO Auto-generated method stub
 	}
 	
-	protected static void mouseMoved(MouseEvent e) {
+	protected static void mouseMoved(MouseEvent event) {
 		// TODO Auto-generated method stub
 		
 	}
