@@ -144,9 +144,6 @@ public class WerewolfPanel extends JPanel {
 		
 		final int cardSize = Math.min(columnWidth, rowHeight);
 		
-		final int xOffset = columnWidth / 2 - cardSize / 2;
-		final int yOffset = rowHeight / 2 - cardSize / 2;
-		
 		int x = 0;
 		for (String team : this.teams) {
 			int y = 0;

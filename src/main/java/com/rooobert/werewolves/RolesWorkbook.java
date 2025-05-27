@@ -3,8 +3,11 @@ package com.rooobert.werewolves;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -45,7 +48,11 @@ public class RolesWorkbook {
 					final String description =  getStringCell(row, 5);
 					
 					// Load image
-					BufferedImage image = ImageIO.read(Paths.get("images", name + ".png").toFile());
+					Path imagePath = Paths.get("images", name + ".png");
+					if (!Files.exists(imagePath)) {
+						throw new RuntimeException("Image does not exist : " + imagePath.toString());
+					}
+					BufferedImage image = ImageIO.read(imagePath.toFile());
 					
 					// Save new node
 					roles.add(new CustomRole(name, description, min, max, image, behaviour, teams));
